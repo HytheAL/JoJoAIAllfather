@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ODIN — AI Intelligence Tutor · Asteryx AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#000000;--bg2:#0d0d0d;--bg3:#141414;--bg4:#1c1c1c;--bg5:#242424;
+  --mag:#bd21b4;--mag-light:#d42ecb;--mag-bright:#e040d8;--mag-deep:#87067b;
+  --mag-deeper:#600055;--mag-glow:rgba(189,33,180,0.35);--mag-subtle:rgba(189,33,180,0.08);--mag-mid:rgba(189,33,180,0.18);
+  --grn:#06bb11;--grn-light:#1fb62c;--grn-bright:#2ed43b;--grn-deep:#047d0c;
+  --grn-glow:rgba(6,187,17,0.35);--grn-subtle:rgba(6,187,17,0.07);--grn-mid:rgba(6,187,17,0.16);
+  --vio:#730067;--vio-mid:rgba(115,0,103,0.4);
+  --cream:#d3d1c0;--cream2:#e8e4d8;--white:#f0eee8;--text2:#9a9080;--text3:#5a5248;--text4:#3a3230;
+  --border:rgba(189,33,180,0.15);--border2:rgba(189,33,180,0.28);--border-grn:rgba(6,187,17,0.18);
+  --red:#ff2d55;--amber:#ff9500;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--mag-deep);border-radius:2px;}
+
+.bg-layer{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(189,33,180,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(189,33,180,0.04) 1px,transparent 1px);background-size:44px 44px;animation:gridShift 25s linear infinite;}
+@keyframes gridShift{to{background-position:44px 44px;}}
+.bg-stripe{position:absolute;top:-20%;left:-10%;width:140%;height:140%;background:repeating-linear-gradient(-55deg,transparent,transparent 60px,rgba(6,187,17,0.018) 60px,rgba(6,187,17,0.018) 62px);animation:stripeDrift 40s linear infinite;}
+@keyframes stripeDrift{to{transform:translateX(88px) translateY(88px);}}
+.orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;animation:orbPulse ease-in-out infinite;}
+.orb-mag{width:700px;height:700px;background:radial-gradient(ellipse,rgba(189,33,180,0.22) 0%,transparent 70%);top:-200px;left:-200px;animation-duration:16s;}
+.orb-grn{width:500px;height:500px;background:radial-gradient(ellipse,rgba(6,187,17,0.14) 0%,transparent 70%);bottom:-100px;right:-100px;animation-duration:20s;animation-delay:-7s;}
+.orb-vio{width:350px;height:350px;background:radial-gradient(ellipse,rgba(115,0,103,0.18) 0%,transparent 70%);top:45%;left:35%;animation-duration:28s;animation-delay:-12s;}
+@keyframes orbPulse{0%,100%{transform:scale(1) translate(0,0);opacity:1;}33%{transform:scale(1.06) translate(20px,-30px);opacity:0.8;}66%{transform:scale(0.96) translate(-15px,20px);opacity:1;}}
+.scanline{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(189,33,180,0.5) 30%,rgba(6,187,17,0.5) 70%,transparent 100%);animation:scan 12s linear infinite;top:0;}
+@keyframes scan{to{top:100%;}}
+
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;max-width:1300px;margin:0 auto;padding:0 22px;}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:14px 0 12px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;background:rgba(0,0,0,0.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);}
+.logo-group{display:flex;align-items:center;gap:14px;}
+.logo-mark{width:44px;height:44px;position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-hex{width:44px;height:44px;}
+.logo-ring{position:absolute;inset:-5px;border-radius:50%;border:1px solid rgba(189,33,180,0.4);animation:ringPulse 3s ease-in-out infinite;}
+.logo-ring-2{position:absolute;inset:-10px;border-radius:50%;border:1px solid rgba(6,187,17,0.15);animation:ringPulse 3s ease-in-out infinite reverse;}
+@keyframes ringPulse{0%,100%{transform:scale(1);opacity:0.5;}50%{transform:scale(1.1);opacity:1;}}
+.logo-wordmark{display:flex;flex-direction:column;}
+.logo-odin{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;letter-spacing:0.18em;background:linear-gradient(135deg,var(--mag-bright) 0%,var(--mag) 40%,var(--grn) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.logo-sub{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:0.22em;text-transform:uppercase;margin-top:1px;}
+.header-mid{display:flex;align-items:center;gap:7px;}
+.pulse-dot{width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:0 0 10px var(--grn),0 0 20px rgba(6,187,17,0.4);animation:pulseDot 2.2s ease-in-out infinite;}
+@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.header-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:0.12em;text-transform:uppercase;}
+.header-right{display:flex;align-items:center;gap:8px;}
+.stat-pill{display:flex;flex-direction:column;align-items:center;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 13px;min-width:54px;}
+.sp-val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;background:linear-gradient(135deg,var(--mag-light),var(--grn));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sp-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:0.08em;}
+.streak-badge{display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,rgba(189,33,180,0.12),rgba(115,0,103,0.08));border:1px solid rgba(189,33,180,0.28);border-radius:20px;padding:5px 14px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--mag-light);}
+.date-display{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:5px 11px;letter-spacing:0.06em;}
+
+nav{display:flex;gap:2px;padding:10px 0 0;border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;}
+nav::-webkit-scrollbar{display:none;}
+.tab{padding:8px 20px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);cursor:pointer;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;transition:all 0.2s;white-space:nowrap;background:none;display:flex;align-items:center;gap:7px;position:relative;top:1px;}
+.tab:hover{color:var(--text2);background:rgba(189,33,180,0.04);}
+.tab.active{color:var(--mag-light);background:var(--bg2);border-color:var(--border);border-bottom-color:var(--bg2);}
+.tab-live{width:5px;height:5px;border-radius:50%;background:var(--grn);box-shadow:0 0 7px var(--grn);animation:pulseDot 2s infinite;}
+
+main{flex:1;padding:22px 0 50px;}
+.view{display:none;}
+.view.active{display:block;}
+
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:10px;}
+.sec-title::before{content:'';display:block;width:20px;height:1px;background:linear-gradient(90deg,var(--mag),transparent);}
+.sec-btn{font-family:'DM Mono',monospace;font-size:10px;color:var(--mag-light);background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;cursor:pointer;letter-spacing:0.05em;transition:all 0.2s;}
+.sec-btn:hover{border-color:var(--border2);background:var(--mag-subtle);}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.card:hover{border-color:var(--border2);}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(189,33,180,0.4),transparent);opacity:0.6;}
+.card-grn::before{background:linear-gradient(90deg,transparent,rgba(6,187,17,0.4),transparent);}
+.card-left{border-left:2px solid var(--mag);padding-left:16px;border-radius:0 12px 12px 0;}
+.card-left-grn{border-left:2px solid var(--grn);padding-left:16px;border-radius:0 12px 12px 0;}
+
+.metric-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.metric-tile{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:15px 17px;position:relative;overflow:hidden;transition:border-color 0.2s;}
+.metric-tile:hover{border-color:var(--border2);}
+.metric-tile::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--mag-deep),var(--mag),var(--grn),transparent);opacity:0.4;}
+.mt-val{font-family:'DM Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--cream2) 0%,var(--mag-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:5px;}
+.mt-val-grn{background:linear-gradient(135deg,var(--cream2) 0%,var(--grn-light) 100%) !important;-webkit-background-clip:text !important;-webkit-text-fill-color:transparent !important;background-clip:text !important;}
+.mt-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;}
+.mt-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+.xp-bar-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;}
+.xp-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.xp-info{font-size:11px;color:var(--text2);font-weight:500;}
+.xp-next{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--grn);letter-spacing:0.08em;}
+.xp-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;position:relative;}
+.xp-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--mag-deep),var(--mag),var(--mag-light),var(--grn));position:relative;overflow:hidden;transition:width 0.6s ease;}
+.xp-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:shimmer 2.5s ease-in-out infinite;}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+.xp-nums{display:flex;justify-content:space-between;margin-top:5px;font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);}
+
+.topics-stack{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.topic-row{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:13px 15px;display:flex;align-items:flex-start;gap:13px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
+.topic-row:hover{border-color:rgba(189,33,180,0.3);background:var(--bg3);transform:translateX(3px);}
+.topic-row.done{opacity:0.5;border-color:rgba(6,187,17,0.2);}
+.topic-row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:linear-gradient(180deg,var(--mag),var(--grn));opacity:0;transition:opacity 0.2s;}
+.topic-row:hover::before,.topic-row.done::before{opacity:1;}
+.topic-row.done::before{background:var(--grn);}
+.tnum{width:32px;height:32px;border-radius:8px;flex-shrink:0;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--text3);margin-top:1px;transition:all 0.2s;}
+.topic-row:hover .tnum{border-color:rgba(189,33,180,0.3);color:var(--mag-light);}
+.topic-row.done .tnum{background:rgba(6,187,17,0.1);border-color:rgba(6,187,17,0.25);color:var(--grn);}
+.t-body{flex:1;min-width:0;}
+.t-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cream);margin-bottom:2px;}
+.t-mod{font-family:'DM Mono',monospace;font-size:10px;color:var(--mag);margin-bottom:4px;letter-spacing:0.05em;}
+.topic-row.done .t-mod{color:var(--grn);}
+.t-cocktail{font-size:12px;color:var(--text2);line-height:1.55;font-style:italic;}
+.t-bloom{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);margin-top:4px;}
+.t-badge{flex-shrink:0;font-size:9px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:20px;margin-top:2px;}
+.b-new{background:var(--mag-subtle);color:var(--mag-light);border:1px solid rgba(189,33,180,0.25);}
+.b-review{background:rgba(255,149,0,0.08);color:var(--amber);border:1px solid rgba(255,149,0,0.2);}
+.b-done{background:var(--grn-subtle);color:var(--grn-light);border:1px solid rgba(6,187,17,0.2);}
+.contrarian{background:linear-gradient(135deg,rgba(115,0,103,0.12),rgba(6,187,17,0.04));border:1px solid rgba(189,33,180,0.22);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden;}
+.contrarian::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(189,33,180,0.04),transparent 60%);}
+.c-label{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--mag-light);margin-bottom:8px;}
+.c-text{font-size:12px;color:var(--text2);line-height:1.7;position:relative;}
+
+.news-stack{display:flex;flex-direction:column;gap:10px;}
+.news-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:border-color 0.2s;}
+.news-card:hover{border-color:var(--border2);}
+.nc-high{border-left:3px solid var(--mag);}
+.nc-med{border-left:3px solid var(--amber);}
+.nc-low{border-left:3px solid var(--text3);}
+.n-head{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cream);margin-bottom:6px;line-height:1.4;}
+.n-what{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;}
+.n-analysis{background:rgba(189,33,180,0.05);border:1px solid rgba(189,33,180,0.12);border-radius:8px;padding:10px 12px;margin-bottom:10px;}
+.n-alabel{font-family:'DM Mono',monospace;font-size:9px;color:var(--mag-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:4px;}
+.n-atext{font-size:12px;color:var(--text2);line-height:1.65;}
+.n-footer{display:flex;align-items:center;gap:10px;}
+.impact-pip{font-family:'DM Mono',monospace;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.08em;}
+.ip-high{background:rgba(189,33,180,0.12);color:var(--mag-light);border:1px solid rgba(189,33,180,0.2);}
+.ip-med{background:rgba(255,149,0,0.1);color:var(--amber);border:1px solid rgba(255,149,0,0.2);}
+.ip-low{background:var(--bg3);color:var(--text3);border:1px solid var(--border);}
+.n-src{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);flex:1;}
+.n-dive{font-family:'DM Mono',monospace;font-size:10px;color:var(--grn-light);background:none;border:1px solid var(--border-grn);border-radius:6px;padding:3px 10px;cursor:pointer;transition:all 0.2s;}
+.n-dive:hover{background:var(--grn-subtle);}
+
+.chat-wrap{display:grid;grid-template-columns:1fr 220px;gap:14px;height:calc(100vh - 180px);min-height:500px;}
+.chat-main{background:var(--bg2);border:1px solid var(--border);border-radius:14px;display:flex;flex-direction:column;overflow:hidden;}
+.chat-hdr{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.chat-hdr-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--cream);letter-spacing:0.08em;}
+.chat-hdr-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);}
+#chat-msgs{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;}
+.msg{display:flex;gap:10px;align-items:flex-start;}
+.m-av{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;flex-shrink:0;}
+.msg.user .m-av{background:rgba(189,33,180,0.15);border:1px solid rgba(189,33,180,0.25);color:var(--mag-light);}
+.msg.ai .m-av{background:rgba(6,187,17,0.1);border:1px solid rgba(6,187,17,0.2);color:var(--grn-light);}
+.m-bub{font-size:13px;color:var(--cream);line-height:1.7;padding:10px 13px;border-radius:10px;max-width:85%;}
+.msg.user .m-bub{background:rgba(189,33,180,0.08);border:1px solid rgba(189,33,180,0.14);}
+.msg.ai .m-bub{background:var(--bg3);border:1px solid var(--border);}
+.m-bub p{margin-bottom:8px;}.m-bub p:last-child{margin-bottom:0;}
+.m-bub strong{color:var(--cream2);font-weight:700;}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--text3);display:inline-block;margin:0 2px;animation:tdot 1.2s ease-in-out infinite;}
+.tdot:nth-child(2){animation-delay:0.2s;}.tdot:nth-child(3){animation-delay:0.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-inp-area{padding:12px 14px;border-top:1px solid var(--border);display:flex;gap:9px;align-items:flex-end;flex-shrink:0;}
+.chat-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:9px 13px;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:13px;resize:none;min-height:38px;max-height:90px;line-height:1.5;}
+.chat-inp:focus{outline:none;border-color:rgba(189,33,180,0.4);}
+.chat-send{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--mag-deep),var(--mag));border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;transition:opacity 0.2s;flex-shrink:0;}
+.chat-send:hover{opacity:0.85;}
+.chat-side{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.sb-hdr{font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);}
+.qchip{display:block;width:100%;text-align:left;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:11px;color:var(--text2);transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.qchip:hover{border-color:rgba(189,33,180,0.28);color:var(--cream);background:var(--mag-subtle);}
+
+.cur-tiers{display:flex;flex-direction:column;gap:20px;}
+.tier-hdr{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:9px;display:flex;align-items:center;gap:10px;}
+.tier-hdr::after{content:'';flex:1;height:1px;background:var(--border);}
+.t-badge-tier{font-size:9px;padding:2px 8px;border-radius:20px;font-weight:700;}
+.tb1{background:rgba(189,33,180,0.1);color:var(--mag-light);border:1px solid rgba(189,33,180,0.2);}
+.tb2{background:rgba(6,187,17,0.08);color:var(--grn-light);border:1px solid rgba(6,187,17,0.18);}
+.tb3{background:rgba(189,33,180,0.06);color:var(--mag);border:1px solid rgba(189,33,180,0.14);}
+.tb4{background:rgba(255,149,0,0.08);color:var(--amber);border:1px solid rgba(255,149,0,0.15);}
+.tb5{background:rgba(6,187,17,0.12);color:var(--grn-bright);border:1px solid rgba(6,187,17,0.22);}
+.mod-grid{display:grid;gap:7px;}
+.mod-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 13px;cursor:pointer;transition:all 0.2s;}
+.mod-card:hover{border-color:rgba(189,33,180,0.28);transform:translateY(-1px);}
+.mod-n{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);margin-bottom:4px;letter-spacing:0.08em;}
+.mod-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--cream);margin-bottom:2px;line-height:1.3;}
+.mod-s{font-size:11px;color:var(--text3);}
+.mod-bar{height:2px;background:var(--bg4);border-radius:1px;margin-top:8px;overflow:hidden;}
+.mod-fill{height:100%;border-radius:1px;background:linear-gradient(90deg,var(--mag-deep),var(--mag),var(--grn));transition:width 0.5s ease;}
+
+.mod-panel{display:none;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;padding:20px 22px;margin-top:16px;}
+.mod-panel.open{display:block;}
+.mp-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.mp-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--cream);}
+.mp-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:17px;padding:0 3px;}
+.mp-desc{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px;}
+.chips-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.chip{font-size:11px;padding:4px 11px;border-radius:20px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);color:var(--text3);transition:all 0.15s;}
+.chip:hover{border-color:rgba(189,33,180,0.3);color:var(--mag-light);background:var(--mag-subtle);}
+.sp-box{background:rgba(189,33,180,0.06);border:1px solid rgba(189,33,180,0.14);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:12px;}
+.sp-box::before{content:'◆ SUPERPOWER: ';color:var(--mag-light);font-weight:700;font-family:'Syne',sans-serif;font-size:9px;letter-spacing:0.12em;display:block;margin-bottom:4px;}
+.start-btn{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:9px 22px;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,rgba(189,33,180,0.18),rgba(6,187,17,0.1));border:1px solid rgba(189,33,180,0.28);color:var(--mag-light);transition:all 0.2s;}
+.start-btn:hover{background:linear-gradient(135deg,rgba(189,33,180,0.3),rgba(6,187,17,0.16));}
+
+.quiz-grid{display:grid;grid-template-columns:1fr 256px;gap:16px;}
+.quiz-main{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px 24px;}
+.q-phases{display:flex;gap:4px;margin-bottom:18px;}
+.qp{height:3px;flex:1;border-radius:2px;background:var(--bg4);transition:background 0.3s;}
+.qp.done{background:var(--grn);}.qp.now{background:var(--mag);}
+.q-meta{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.q-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--cream);line-height:1.5;margin-bottom:18px;}
+.q-opts{display:flex;flex-direction:column;gap:7px;}
+.qopt{padding:11px 14px;border-radius:9px;cursor:pointer;background:var(--bg3);border:1px solid var(--border);font-size:12px;color:var(--text2);text-align:left;transition:all 0.15s;font-family:'DM Sans',sans-serif;}
+.qopt:hover{border-color:rgba(189,33,180,0.25);color:var(--cream);background:var(--mag-subtle);}
+.qopt.correct{background:var(--grn-subtle);border-color:rgba(6,187,17,0.3);color:var(--grn-light);}
+.qopt.wrong{background:rgba(255,45,85,0.06);border-color:rgba(255,45,85,0.2);color:var(--red);}
+.q-exp{margin-top:14px;padding:12px 14px;border-radius:9px;background:rgba(189,33,180,0.06);border:1px solid rgba(189,33,180,0.15);font-size:12px;color:var(--text2);line-height:1.65;display:none;}
+.q-exp.show{display:block;}
+.q-exp-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--mag-light);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:5px;}
+.q-next{margin-top:14px;width:100%;padding:10px;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;border-radius:9px;cursor:pointer;background:linear-gradient(135deg,rgba(189,33,180,0.15),rgba(6,187,17,0.08));border:1px solid rgba(189,33,180,0.22);color:var(--mag-light);transition:all 0.2s;display:none;}
+.q-next.show{display:block;}
+.q-next:hover{background:linear-gradient(135deg,rgba(189,33,180,0.28),rgba(6,187,17,0.15));}
+.quiz-side{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.q-stat-row{display:flex;justify-content:space-between;align-items:center;padding:9px 11px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);}
+.qs-l{font-size:11px;color:var(--text3);}
+.qs-v{font-family:'DM Mono',monospace;font-size:16px;color:var(--mag-light);font-weight:500;}
+.qs-v.grn{color:var(--grn-light);}.qs-v.red{color:var(--red);}
+.divider{height:1px;background:var(--border);}
+.review-list{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);line-height:1.9;}
+.review-list span{color:var(--mag);}
+
+.prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.bloom-list{display:flex;flex-direction:column;gap:9px;}
+.b-row{display:flex;align-items:center;gap:11px;}
+.b-lbl{font-size:11px;color:var(--text3);width:72px;flex-shrink:0;}
+.b-track{flex:1;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.b-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--mag-deep),var(--mag),var(--grn));transition:width 0.5s ease;}
+.b-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);width:32px;text-align:right;}
+.mod-prog-list{display:flex;flex-direction:column;gap:6px;}
+.mp-row{display:flex;align-items:center;gap:10px;padding:7px 10px;background:var(--bg3);border-radius:7px;border:1px solid var(--border);}
+.mp-n{font-family:'DM Mono',monospace;font-size:10px;color:var(--text3);width:30px;flex-shrink:0;}
+.mp-t{font-size:11px;color:var(--text2);flex:1;}
+.mp-bw{width:80px;}
+.mp-b{height:3px;background:var(--bg4);border-radius:2px;overflow:hidden;}
+.mp-bf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--mag),var(--grn));transition:width 0.5s ease;}
+.mp-p{font-family:'DM Mono',monospace;font-size:9px;color:var(--text3);width:30px;text-align:right;}
+.srt-card{grid-column:1/-1;background:linear-gradient(135deg,rgba(6,187,17,0.05),rgba(189,33,180,0.04));border:1px solid rgba(6,187,17,0.15);border-radius:14px;padding:18px 20px;}
+.srt-hdr{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--grn-light);margin-bottom:12px;}
+.srt-rows{display:flex;flex-direction:column;gap:7px;}
+.srt-r{display:flex;align-items:center;gap:12px;}
+.srt-day{font-family:'DM Mono',monospace;font-size:11px;color:var(--mag-light);width:64px;flex-shrink:0;}
+.srt-t{font-size:12px;color:var(--text2);}
+.srt-note{margin-top:12px;font-size:11px;color:var(--text3);line-height:1.7;}
+
+.odin-loader{display:inline-flex;flex-direction:column;align-items:center;gap:10px;}
+.jl-spin{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--mag);border-right-color:var(--grn);border-radius:50%;animation:jlspin .8s linear infinite;}
+@keyframes jlspin{to{transform:rotate(360deg);}}
+.jl-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);letter-spacing:.08em;}
+
+.key-gate{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.96);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);}
+.key-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px 36px;max-width:480px;width:90%;text-align:center;}
+.key-logo{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;background:linear-gradient(135deg,var(--mag-bright),var(--grn));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px;}
+.key-sub{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.1em;margin-bottom:24px;}
+.key-label{font-size:12px;color:var(--text2);margin-bottom:10px;text-align:left;}
+.key-input{width:100%;padding:11px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;color:var(--cream);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.04em;margin-bottom:14px;}
+.key-input:focus{outline:none;border-color:rgba(189,33,180,.4);}
+.key-btn{width:100%;padding:12px;background:linear-gradient(135deg,var(--mag-deep),var(--mag));border:none;border-radius:9px;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;box-shadow:0 4px 20px var(--mag-glow);}
+.key-btn:hover{opacity:.88;}
+.key-note{font-size:11px;color:var(--text3);margin-top:14px;line-height:1.6;}
+.key-note a{color:var(--mag-light);}
+.key-error{font-size:11px;color:var(--red);margin-top:8px;display:none;}
+@keyframes fadeInUp{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="bg-layer">
+  <div class="bg-grid"></div>
+  <div class="bg-stripe"></div>
+  <div class="orb orb-mag"></div>
+  <div class="orb orb-grn"></div>
+  <div class="orb orb-vio"></div>
+  <div class="scanline"></div>
+</div>
+
+<div class="app">
+
+<header>
+  <div class="logo-group">
+    <div class="logo-mark">
+      <svg class="logo-hex" viewBox="0 0 44 44" fill="none">
+        <path d="M22 4 L36 12 L36 28 L22 36 L8 28 L8 12 Z" fill="none" stroke="rgba(189,33,180,0.6)" stroke-width="1.2"/>
+        <path d="M22 4 L36 12 L36 28 L22 36" fill="none" stroke="rgba(6,187,17,0.8)" stroke-width="1.2"/>
+        <path d="M22 10 L32 16 L32 28 L22 34 L12 28 L12 16 Z" fill="rgba(189,33,180,0.06)" stroke="rgba(189,33,180,0.25)" stroke-width="0.8"/>
+        <circle cx="22" cy="22" r="4.5" fill="rgba(189,33,180,0.15)" stroke="rgba(189,33,180,0.7)" stroke-width="1"/>
+        <circle cx="22" cy="22" r="1.8" fill="#bd21b4"/>
+        <circle cx="22" cy="22" r="1" fill="#06bb11"/>
+      </svg>
+      <div class="logo-ring"></div>
+      <div class="logo-ring-2"></div>
+    </div>
+    <div class="logo-wordmark">
+      <div class="logo-odin">ODIN</div>
+      <div class="logo-sub">by Asteryx AI · Intelligence Tutor</div>
+    </div>
+  </div>
+  <div class="header-mid">
+    <div class="pulse-dot"></div>
+    <div class="header-status">Online · Ready for Briefing</div>
+  </div>
+  <div class="header-right">
+    <div class="stat-pill"><div class="sp-val" id="stat-topics">0</div><div class="sp-lbl">Topics</div></div>
+    <div class="stat-pill"><div class="sp-val" id="stat-streak">0</div><div class="sp-lbl">Streak</div></div>
+    <div class="stat-pill"><div class="sp-val" id="stat-level">1</div><div class="sp-lbl">Level</div></div>
+    <div class="streak-badge" id="streak-badge-hdr">⚡ Day 1</div>
+    <div class="date-display" id="date-chip">—</div>
+  </div>
+</header>
+
+<nav>
+  <button class="tab active" id="tab-today"><div class="tab-live"></div>Today</button>
+  <button class="tab" id="tab-news">◉ AI News</button>
+  <button class="tab" id="tab-chat">◎ ODIN Chat</button>
+  <button class="tab" id="tab-curriculum">◫ Curriculum</button>
+  <button class="tab" id="tab-quiz">◇ Quiz</button>
+  <button class="tab" id="tab-progress">▦ Progress</button>
+</nav>
+
+<main>
+
+<!-- TODAY -->
+<div class="view active" id="view-today">
+  <div class="metric-row">
+    <div class="metric-tile">
+      <div class="mt-val" id="tile-topics">0</div>
+      <div class="mt-lbl">Topics Explored</div>
+      <div class="mt-sub">All time · 16 modules</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-val mt-val-grn" id="tile-xp">0</div>
+      <div class="mt-lbl">Total XP</div>
+      <div class="mt-sub">Earned through engagement</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-val" id="tile-acc">—</div>
+      <div class="mt-lbl">Quiz Accuracy</div>
+      <div class="mt-sub">Informational only</div>
+    </div>
+    <div class="metric-tile">
+      <div class="mt-val mt-val-grn" id="tile-streak">0</div>
+      <div class="mt-lbl">Day Streak</div>
+      <div class="mt-sub">Any daily activity counts</div>
+    </div>
+  </div>
+  <div class="xp-bar-card">
+    <div class="xp-row">
+      <div class="xp-info" id="xp-info-text">Level 1 — AI Initiate · 0 / 500 XP</div>
+      <div class="xp-next" id="xp-next-text">→ AI Explorer at 500 XP</div>
+    </div>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill-bar" style="width:0%"></div></div>
+    <div class="xp-nums"><span id="xp-cur">0 XP</span><span id="xp-max">500 XP</span></div>
+  </div>
+  <div class="sec-hdr">
+    <div class="sec-title">Today's 5 AI Topics</div>
+    <button class="sec-btn" id="regen-topics-btn">⟳ Generate Briefing</button>
+  </div>
+  <div id="topics-loading" style="display:none;padding:24px;text-align:center">
+    <div class="odin-loader"><div class="jl-spin"></div><div class="jl-text">ODIN is preparing today's curriculum...</div></div>
+  </div>
+  <div class="topics-stack" id="topics-container">
+    <div style="padding:22px;text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.06em">CLICK "GENERATE BRIEFING" TO LOAD TODAY'S 5 AI TOPICS</div>
+  </div>
+  <div class="contrarian" id="contrarian-block" style="display:none">
+    <div class="c-label">ODIN's Contrarian Take of the Day</div>
+    <div class="c-text" id="contrarian-text"></div>
+  </div>
+</div>
+
+<!-- NEWS -->
+<div class="view" id="view-news">
+  <div class="sec-hdr">
+    <div class="sec-title">AI Market Intelligence</div>
+    <button class="sec-btn" id="news-refresh-btn">⟳ Refresh Briefing</button>
+  </div>
+  <div id="news-loading" style="display:none;padding:24px;text-align:center">
+    <div class="odin-loader"><div class="jl-spin"></div><div class="jl-text">ODIN is scanning the AI landscape...</div></div>
+  </div>
+  <div class="news-stack" id="news-container">
+    <div style="padding:22px;text-align:center;font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;letter-spacing:.06em">CLICK "REFRESH BRIEFING" FOR TODAY'S AI INTELLIGENCE WITH ODIN'S ANALYSIS</div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="view" id="view-chat">
+  <div class="chat-wrap">
+    <div class="chat-main">
+      <div class="chat-hdr">
+        <div class="pulse-dot"></div>
+        <div>
+          <div class="chat-hdr-title">ODIN — AI Intelligence Tutor</div>
+          <div class="chat-hdr-sub">Provocateur · Challenger · Socratic Mentor</div>
+        </div>
+      </div>
+      <div id="chat-msgs"></div>
+      <div class="chat-inp-area">
+        <textarea class="chat-inp" id="chat-inp" placeholder="Ask ODIN anything about AI..." rows="1"></textarea>
+        <button class="chat-send" id="send-btn">↑</button>
+      </div>
+    </div>
+    <div class="chat-side">
+      <div class="sb-hdr">Quick Actions</div>
+      <button class="qchip">◆ Full lesson — all levels</button>
+      <button class="qchip">◎ Quick explainer only</button>
+      <button class="qchip">⚙ Technical depth</button>
+      <button class="qchip">◉ Layman translation</button>
+      <button class="qchip">◇ Quiz me on this</button>
+      <div class="divider"></div>
+      <div class="sb-hdr">Session Activity</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text3);line-height:2;">
+        <div>Chat turns: <span id="chat-turn-count" style="color:var(--mag-light)">0</span></div>
+        <div>Session XP: <span id="session-xp-count" style="color:var(--grn-light)">0</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CURRICULUM -->
+<div class="view" id="view-curriculum">
+  <div class="cur-tiers" id="curriculum-container"></div>
+  <div class="mod-panel" id="mod-panel">
+    <div class="mp-hdr">
+      <div class="mp-title" id="mp-title"></div>
+      <button class="mp-close" id="mp-close">✕</button>
+    </div>
+    <div class="mp-desc" id="mp-desc"></div>
+    <div class="chips-wrap" id="mp-chips"></div>
+    <div class="sp-box" id="mp-sp"></div>
+    <button class="start-btn" id="mod-start-btn">▶ Start Full Lesson with ODIN</button>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="view" id="view-quiz">
+  <div class="quiz-grid">
+    <div class="quiz-main">
+      <div class="q-phases" id="q-phases">
+        <div class="qp"></div><div class="qp"></div><div class="qp"></div><div class="qp"></div><div class="qp"></div>
+      </div>
+      <div class="q-meta" id="quiz-q-meta">Ready to start — click New Question</div>
+      <div class="q-text" id="quiz-q-text">Click "New Question" to begin. Questions are generated live by ODIN — never the same twice.</div>
+      <div class="q-opts" id="quiz-opts"></div>
+      <div class="q-exp" id="quiz-exp"><div class="q-exp-lbl">ODIN's Explanation</div><div id="quiz-exp-text"></div></div>
+      <button class="q-next" id="quiz-next-btn">Next Question →</button>
+    </div>
+    <div class="quiz-side">
+      <div class="sb-hdr">Session Stats</div>
+      <div class="q-stat-row"><div class="qs-l">Correct</div><div class="qs-v grn" id="qs-correct">0</div></div>
+      <div class="q-stat-row"><div class="qs-l">Wrong</div><div class="qs-v red" id="qs-wrong">0</div></div>
+      <div class="q-stat-row"><div class="qs-l">Accuracy</div><div class="qs-v" id="qs-acc">—</div></div>
+      <div class="q-stat-row"><div class="qs-l">All-time Q</div><div class="qs-v" id="qs-total">0</div></div>
+      <div class="divider"></div>
+      <div class="sb-hdr">Spaced Reviews</div>
+      <div class="review-list" id="srt-quiz-list">No reviews yet — start exploring topics.</div>
+      <div class="divider"></div>
+      <button class="sec-btn" style="width:100%" id="new-question-btn">⟳ New Question</button>
+      <button class="sec-btn" style="width:100%;margin-top:6px;color:var(--grn-light);border-color:var(--border-grn)" id="socratic-btn">◆ Socratic Challenge</button>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="view" id="view-progress">
+  <div class="prog-grid">
+    <div class="card card-left">
+      <div class="sec-title" style="margin-bottom:14px">Bloom's Taxonomy Depth</div>
+      <div class="bloom-list" id="bloom-list"></div>
+    </div>
+    <div class="card card-left-grn">
+      <div class="sec-title" style="margin-bottom:14px">Module Progress</div>
+      <div class="mod-prog-list" id="mod-prog-list"></div>
+    </div>
+    <div class="srt-card">
+      <div class="srt-hdr">Spaced Repetition Queue — SM-2 Algorithm</div>
+      <div class="srt-rows" id="srt-rows"></div>
+      <div class="srt-note">Each topic you complete is scheduled: 1 day → 3 days → 7 days → 14 days → 21 days → 60 days. Reviews at the right interval encode knowledge permanently into long-term memory — this is how world-class expertise is actually built.</div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+var MODULES=[{id:'M01',title:'What is AI?',sub:'History, definitions, family tree, hype vs reality',desc:'From Turing to GPT-4 — the full arc of artificial intelligence without the mythology. What AI actually is, what it is not, and why 90% of public discourse gets both wrong.',topics:'AI vs ML vs Deep Learning,Turing test & its limits,AI family tree,Symbolic vs connectionist AI,AI winters & why they happened,Current AI landscape map,Narrow vs General AI,AI hype cycle decoded,Key milestones 1950-2025',sp:'Walk into any room and immediately correct the five most common AI misconceptions with historical precision and zero condescension.',tier:1,tclass:'tb1'},{id:'M02',title:'How machines learn',sub:'Loss functions, gradient descent, overfitting',desc:'The intuition behind gradient descent, loss landscapes, overfitting, and evaluation — without heavy math. The foundation most people skip.',topics:'Loss functions explained,Gradient descent intuition,Backpropagation concept,Learning rate effects,Overfitting vs underfitting,Regularisation techniques,Train/val/test splits,Evaluation metrics (F1 AUC),Bias-variance tradeoff',sp:'Diagnose why any AI model underperforms — a skill most non-technical people lack entirely.',tier:1,tclass:'tb1'},{id:'M03',title:'Neural networks demystified',sub:'Nodes, layers, activation, CNNs, RNNs',desc:'What a node, layer, and activation function actually are — built from first principles through CNNs and RNNs. The architecture intuition most people never get.',topics:'Neurons & perceptrons,Layers: input hidden output,Activation functions & why,What a node actually is,Forward pass step by step,CNNs visual intuition,RNNs & sequence data,Vanishing gradient problem,Dropout & batch norm',sp:'Explain any neural architecture diagram to a developer OR a CEO with equal clarity.',tier:1,tclass:'tb1'},{id:'M04',title:'Transformers & the LLM Revolution',sub:'Attention, Q/K/V, tokenisation, scaling laws',desc:'The transformer architecture from scratch — self-attention, Q/K/V matrices, positional encoding, tokenisation, and why scaling changed everything.',topics:'Self-attention mechanism,Query Key Value explained,Multi-head attention,Positional encoding,Tokenisation & BPE,Context windows,Pre-training vs fine-tuning,RLHF & instruction tuning,Temperature & sampling,KV cache,Scaling laws (Chinchilla),Emergent capabilities',sp:'Explain exactly how GPT generates a sentence — at a level that earns respect from the engineers who built it.',tier:2,tclass:'tb2'},{id:'M05',title:'Hallucination, Alignment & Safety',sub:'Why LLMs fail and what we do about it',desc:'The mechanical reason LLMs hallucinate, confabulation vs genuine errors, RLHF, Constitutional AI, red-teaming, and the full alignment landscape.',topics:'Why LLMs hallucinate (mechanical),Confabulation vs real errors,Confidence calibration,Constitutional AI,RLHF for alignment,Red-teaming & adversarial prompts,Jailbreaking mechanics,Prompt injection attacks,AI bias origins & types,The alignment problem',sp:'Know the mechanism — not just that it makes things up. This is the rarest expertise in most AI conversations.',tier:2,tclass:'tb2'},{id:'M06',title:'Data, Embeddings & Vector Space',sub:'What embeddings are & semantic search',desc:'How AI converts meaning into math — vectors, similarity, semantic search, and the infrastructure that makes RAG possible.',topics:'What an embedding actually is,Vector space intuition,Cosine similarity explained,Word2Vec & sentence transformers,Semantic vs keyword search,Vector databases (Pinecone Weaviate pgvector),Dimensionality reduction,Chunking strategies,Embedding models compared',sp:'Explain why two sentences with zero shared words can be semantically identical — and why that breaks most search systems.',tier:2,tclass:'tb2'},{id:'M07',title:'Multimodal AI',sub:'Vision, audio, video, diffusion models',desc:'How AI sees, hears, and generates. From CLIP to Stable Diffusion to Sora — the architecture of perception.',topics:'CLIP connecting vision & language,Diffusion models intuition,Stable Diffusion architecture,Image generation vs understanding,Vision transformers (ViT),Audio AI & Whisper,Video AI fundamentals,GPT-4V & multimodal LLMs,Generative vs discriminative models',sp:'Explain why Midjourney and ChatGPT are architecturally more similar than they look — and more different than most people assume.',tier:2,tclass:'tb2'},{id:'M08',title:'LLM Landscape & Model Wars',sub:'GPT vs Claude vs Gemini vs Llama',desc:'The full competitive map of frontier models, open-source vs closed, capability benchmarks, and what the model wars actually mean strategically.',topics:'GPT-4 / GPT-4o architecture,Claude 3.x family & Constitutional AI,Gemini Ultra vs Pro,Llama 3 & open-source models,Mistral & European AI,Benchmark wars (MMLU HELM),Open vs closed model tradeoffs,Model pricing & economics,Singapore AI context',sp:'Advise any Singapore company on model selection with a clear framework — no vendor bias, just strategic clarity.',tier:3,tclass:'tb3'},{id:'M09',title:'Prompt Engineering & Control',sub:'Steering LLMs with precision',desc:'The full toolkit for controlling LLM behaviour — from zero-shot to chain-of-thought to structured outputs and adversarial robustness.',topics:'Zero-shot vs few-shot prompting,Chain-of-thought prompting,Role & persona prompting,Structured output prompting,ReAct & tool-use prompting,Prompt injection defences,System vs user prompts,Temperature & sampling control,Prompt evaluation frameworks',sp:'Get any LLM to produce precisely what you need — the first time, every time.',tier:3,tclass:'tb3'},{id:'M10',title:'RAG, Agents & AI Systems',sub:'Building AI that works in production',desc:'Retrieval-augmented generation, autonomous agents, multi-agent systems, and the full architecture of production AI.',topics:'RAG architecture end-to-end,Chunking & retrieval strategies,Re-ranking & hybrid search,Agentic loops & ReAct,Tool use & function calling,Multi-agent architectures,LangChain vs LlamaIndex,Evaluation of RAG systems,Production failure modes',sp:'Architect a production AI system from whiteboard to deployment — and immediately identify the three points where it will fail.',tier:3,tclass:'tb3'},{id:'M11',title:'AI Infrastructure & Economics',sub:'Compute, clouds, cost-per-token',desc:'The hardware, cloud, and economic layer underneath every AI system — GPUs, TPUs, inference costs, and the infrastructure arms race.',topics:'GPU vs TPU vs CPU for AI,NVIDIA H100 & A100 explained,Model quantisation (INT8 INT4),Inference vs training costs,Cost-per-token economics,AWS vs Azure vs GCP AI stack,Edge AI & on-device inference,LLMOps & MLflow,AI infrastructure for SMEs',sp:'Cost any AI deployment accurately before you build it — and find the 10x efficiency gains others miss.',tier:3,tclass:'tb3'},{id:'M12',title:'AI Ethics, Bias & Governance',sub:'EU AI Act, fairness, responsible deployment',desc:'The full governance landscape — where regulation is heading, how bias actually works technically, and how to deploy AI responsibly without the platitudes.',topics:'EU AI Act full breakdown,Singapore AI governance framework,Algorithmic bias mechanisms,Fairness metrics & tradeoffs,Data privacy & AI (GDPR/PDPA),AI auditing practices,Responsible AI frameworks,Model cards & transparency,AI liability & legal risk',sp:'Navigate any AI governance conversation with the precision of a policy expert and the credibility of an engineer.',tier:4,tclass:'tb4'},{id:'M13',title:'AI Business Strategy',sub:'Value chain, moats, build/buy/partner',desc:'How AI creates and destroys value — competitive moats, the build/buy/partner decision, AI transformation playbooks, and Singapore-specific context.',topics:'AI value chain analysis,Competitive moats in AI era,Build vs buy vs partner framework,AI transformation playbooks,Data as a moat reality check,AI product strategy,Pricing AI products,ROI frameworks for AI investment,Singapore AI ecosystem map',sp:'Walk into any board meeting and give the most strategically rigorous AI recommendation in the room.',tier:4,tclass:'tb4'},{id:'M14',title:'AI in the World',sub:'Verticals, societal impact, future trajectories',desc:'AI across industries, the labour market reality, geopolitical dimensions, and where the next 5 years actually go — stripped of both hype and fear.',topics:'AI in healthcare & biotech,AI in finance & trading,AI in legal & compliance,AI in education,Labour market impact real data,Geopolitics of AI (US/China/EU),AI & creative industries,Climate & AI energy costs,2025-2030 trajectory',sp:'Give a 5-year AI forecast for any industry that is specific, defensible, and non-obvious — in under 3 minutes.',tier:4,tclass:'tb4'},{id:'M15',title:'Contrarian AI Intelligence',sub:'Predict what others miss — be 18 months ahead',desc:'The meta-skill of thinking about AI. How to identify what the consensus gets wrong, develop a contrarian thesis, and be systematically ahead of the market.',topics:'How AI consensus forms & fails,Second-order effects thinking,Reading research papers critically,Following the right signals,Distinguishing hype from trajectory,Building a contrarian AI thesis,Historical AI prediction failures,Information edge sources,The 18-month mental model',sp:'Be the person in any room who predicted what just happened — and knows what is coming next.',tier:5,tclass:'tb5'},{id:'M16',title:'Teaching AI to Anyone',sub:'From kernel engineer to grandparent',desc:'The master skill — explaining AI at exactly the right level for any audience, with precision, impact, and zero condescension.',topics:'Audience mapping framework,Feynman technique for AI,Analogy construction toolkit,Technical to layman translation,The dual-audience method,Calibrating depth on the fly,Handling hostile sceptics,AI storytelling for business,Signature explanation development',sp:'Make anyone — from a hedge fund PM to a 70-year-old — understand any AI concept in under 90 seconds.',tier:5,tclass:'tb5'}];
+
+var TIERS=[{n:1,label:'Tier 1 — Foundations',cls:'tb1',mods:['M01','M02','M03'],cols:3},{n:2,label:'Tier 2 — Core Technical Mastery',cls:'tb2',mods:['M04','M05','M06','M07'],cols:2},{n:3,label:'Tier 3 — Applied & Operational',cls:'tb3',mods:['M08','M09','M10','M11'],cols:4},{n:4,label:'Tier 4 — Strategy, Ethics & Governance',cls:'tb4',mods:['M12','M13','M14'],cols:3},{n:5,label:'Tier 5 — Elite Edge: Think Differently',cls:'tb5',mods:['M15','M16'],cols:2}];
+
+var XP_LEVELS=[{lvl:1,name:'AI Initiate',max:500},{lvl:2,name:'AI Explorer',max:1200},{lvl:3,name:'AI Practitioner',max:2500},{lvl:4,name:'AI Architect',max:5000},{lvl:5,name:'AI Strategist',max:9000},{lvl:6,name:'AI Allfather',max:999999}];
+
+var ODIN_KEY=localStorage.getItem('odin_api_key')||'';
+var chatHistory=[];
+var sessionChatTurns=0;
+var sessionXP=0;
+var quizSessionCorrect=0,quizSessionWrong=0;
+
+function loadState(){return{topicsExplored:parseInt(localStorage.getItem('odin_topics')||'0'),totalXP:parseInt(localStorage.getItem('odin_xp')||'0'),streakDays:parseInt(localStorage.getItem('odin_streak')||'0'),lastActive:localStorage.getItem('odin_last_active')||'',questionsAnswered:parseInt(localStorage.getItem('odin_qa')||'0'),correctAnswers:parseInt(localStorage.getItem('odin_correct')||'0'),moduleChipsExplored:JSON.parse(localStorage.getItem('odin_chips')||'{}'),srtQueue:JSON.parse(localStorage.getItem('odin_srt')||'[]'),bloomCounts:JSON.parse(localStorage.getItem('odin_bloom')||'{"Remember":0,"Understand":0,"Apply":0,"Analyse":0,"Evaluate":0,"Create":0}')};}
+
+function saveState(s){localStorage.setItem('odin_topics',s.topicsExplored);localStorage.setItem('odin_xp',s.totalXP);localStorage.setItem('odin_streak',s.streakDays);localStorage.setItem('odin_last_active',s.lastActive);localStorage.setItem('odin_qa',s.questionsAnswered);localStorage.setItem('odin_correct',s.correctAnswers);localStorage.setItem('odin_chips',JSON.stringify(s.moduleChipsExplored));localStorage.setItem('odin_srt',JSON.stringify(s.srtQueue));localStorage.setItem('odin_bloom',JSON.stringify(s.bloomCounts));}
+
+function awardXP(amount,reason){var s=loadState();s.totalXP+=amount;saveState(s);sessionXP+=amount;document.getElementById('session-xp-count').textContent=sessionXP;updateStats();showToast('+'+amount+' XP — '+reason);}
+
+function markActivity(){var s=loadState();var today=new Date().toDateString();if(s.lastActive!==today){var yesterday=new Date(Date.now()-86400000).toDateString();s.streakDays=(s.lastActive===yesterday)?s.streakDays+1:1;s.lastActive=today;saveState(s);updateStats();}}
+
+function getLevelInfo(xp){var prev=0;for(var i=0;i<XP_LEVELS.length;i++){var lvl=XP_LEVELS[i];var prevMax=i>0?XP_LEVELS[i-1].max:0;if(xp<lvl.max||i===XP_LEVELS.length-1){var next=XP_LEVELS[i+1];return{lvl:lvl.lvl,name:lvl.name,cur:xp-prevMax,max:lvl.max-prevMax,nextName:next?next.name:null,nextThreshold:lvl.max};}}return{lvl:6,name:'AI Allfather',cur:xp,max:xp,nextName:null};}
+
+function updateStats(){var s=loadState();var li=getLevelInfo(s.totalXP);document.getElementById('stat-topics').textContent=s.topicsExplored;document.getElementById('stat-streak').textContent=s.streakDays;document.getElementById('stat-level').textContent=li.lvl;document.getElementById('streak-badge-hdr').textContent=s.streakDays>1?'🔥 '+s.streakDays+'-day streak':'⚡ Day '+(s.streakDays||1);document.getElementById('date-chip').textContent=new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});document.getElementById('tile-topics').textContent=s.topicsExplored;document.getElementById('tile-xp').textContent=s.totalXP;var acc=s.questionsAnswered>0?Math.round((s.correctAnswers/s.questionsAnswered)*100)+'%':'—';document.getElementById('tile-acc').textContent=acc;document.getElementById('tile-streak').textContent=s.streakDays;document.getElementById('xp-info-text').textContent='Level '+li.lvl+' — '+li.name+' · '+li.cur+' / '+li.max+' XP';document.getElementById('xp-next-text').textContent=li.nextName?'→ '+li.nextName+' at '+li.nextThreshold+' XP':'◆ MAX LEVEL — AI ALLFATHER';var pct=Math.min(100,Math.round((li.cur/li.max)*100));document.getElementById('xp-fill-bar').style.width=pct+'%';document.getElementById('xp-cur').textContent=li.cur+' XP';document.getElementById('xp-max').textContent=li.max+' XP';document.getElementById('qs-total').textContent=s.questionsAnswered;renderBloom(s.bloomCounts,s.topicsExplored);renderModProgress(s.moduleChipsExplored);renderSRT(s.srtQueue);}
+
+var SYS='You are ODIN — the AI Allfather. Elite AI Intelligence Tutor for Brad Guo, Co-Founder of Asteryx AI, Singapore. 20 years across DeepMind, OpenAI, Google Brain, Anthropic, Meta AI, Hugging Face, Mistral. You trained models, shipped products, taught AI to PhD engineers and Fortune 500 boards.\n\nIDENTITY: Provocateur. Challenger. Socratic mentor. Challenge assumptions. Think 18 months ahead. Full spectrum — transformer internals to grandmother analogies. Never generic. Always high-leverage.\n\nGOAL: Brad walks into any room as the most compelling, credible, distinctive voice on AI present.\n\n16-MODULE CURRICULUM: M01 What is AI → M02 How machines learn → M03 Neural networks → M04 Transformers & LLMs → M05 Hallucination/alignment/safety → M06 Data/embeddings/vectors → M07 Multimodal AI → M08 LLM landscape → M09 Prompt engineering → M10 RAG/agents/systems → M11 AI infrastructure → M12 AI ethics/governance → M13 AI business strategy → M14 AI in the world → M15 Contrarian AI intelligence → M16 Teaching AI to anyone.\n\nMETHODOLOGY: Bloom\'s taxonomy (Remember→Create). Dual audience always (developer + layman). Socratic method. Real named examples. Contrarian lens. Superpower frame at end of every topic.\n\nVOICE: Brilliant provocative mentor. Short punchy sentences for insights. Never pad. Never "great question." Forward hook at end. Use → for key points. Label "To a developer:" / "To a layman:" for translations.\n\nFULL EXPERT DEPTH: attention/transformers/GPT/Claude/Gemini/Llama architectures, RAG, agents, embeddings, diffusion models, MoE, quantisation, LLMOps, EU AI Act, AI business strategy, 50+ AI analogies, Feynman technique.';
+
+function extractJSON(txt){var c=txt.replace(/```json|```/g,'').trim();var s=c.indexOf('{'),e=c.lastIndexOf('}');if(s<0||e<0)throw new Error('No JSON in response');return JSON.parse(c.slice(s,e+1));}
+
+async function odinCall(msg,isJson){var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ODIN_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1400,system:SYS,messages:[{role:'user',content:msg}]})});if(!res.ok){var e=await res.json().catch(function(){return{};});throw new Error((e.error&&e.error.message)||'HTTP '+res.status);}var data=await res.json();var txt=data.content&&data.content.map(function(b){return b.text||'';}).join('')||'';return isJson?extractJSON(txt):txt;}
+
+async function odinChatCall(msgs){var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':ODIN_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1400,system:SYS,messages:msgs.slice(-14)})});if(!res.ok)throw new Error('HTTP '+res.status);var data=await res.json();return data.content&&data.content.map(function(b){return b.text||'';}).join('')||'Connection issue.';}
+
+function showKeyGate(){if(document.getElementById('key-gate'))return;var g=document.createElement('div');g.className='key-gate';g.id='key-gate';g.innerHTML='<div class="key-box"><div class="key-logo">ODIN</div><div class="key-sub">THE AI ALLFATHER · BY ASTERYX AI</div><div class="key-label">Enter your Anthropic API key to activate ODIN:</div><input class="key-input" id="key-inp" type="password" placeholder="sk-ant-api03-..." autocomplete="off"/><button class="key-btn" id="key-save-btn">ACTIVATE ODIN</button><div class="key-error" id="key-err">Invalid key — please check and retry</div><div class="key-note">Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a><br>Stored locally in your browser only. Never shared.</div></div>';document.body.appendChild(g);setTimeout(function(){var inp=document.getElementById('key-inp');if(inp)inp.focus();},100);document.getElementById('key-inp').addEventListener('keydown',function(e){if(e.key==='Enter')saveKey();});document.getElementById('key-save-btn').addEventListener('click',saveKey);}
+
+async function saveKey(){var k=document.getElementById('key-inp')&&document.getElementById('key-inp').value.trim();if(!k||!k.startsWith('sk-ant')){document.getElementById('key-err').style.display='block';return;}try{ODIN_KEY=k;var test=await odinCall('Respond with exactly: ODIN online',false);if(!test.toLowerCase().includes('odin'))throw new Error('Unexpected response');localStorage.setItem('odin_api_key',k);var gate=document.getElementById('key-gate');if(gate)gate.remove();markActivity();updateStats();showToast('ODIN activated. Good morning, Brad. The Allfather is online.');}catch(e){document.getElementById('key-err').style.display='block';document.getElementById('key-err').textContent='Key error: '+e.message;ODIN_KEY='';}}
+
+function checkKey(){if(!ODIN_KEY)showKeyGate();}
+
+function show(name){document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});var v=document.getElementById('view-'+name);if(v)v.classList.add('active');var t=document.getElementById('tab-'+name);if(t)t.classList.add('active');window.scrollTo(0,0);}
+
+function setLoad(id,on){var el=document.getElementById(id);if(el)el.style.display=on?'block':'none';}
+function setBtn(id,loading,label){var el=document.getElementById(id);if(!el)return;el.disabled=loading;el.textContent=loading?'⟳ Loading...':label;}
+
+function showToast(msg){var t=document.createElement('div');t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 22px;font-family:"DM Mono",monospace;font-size:11px;color:var(--mag-light);z-index:9000;letter-spacing:.06em;box-shadow:0 4px 24px var(--mag-glow);animation:fadeInUp .3s ease;white-space:nowrap;';t.textContent=msg;document.body.appendChild(t);setTimeout(function(){t.style.opacity='0';},2800);setTimeout(function(){t.remove();},3200);}
+
+function fmt(txt){return txt.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').split('\n\n').map(function(p){return'<p>'+p.replace(/\n/g,'<br>')+'</p>';}).join('');}
+
+async function generateTopics(){if(!ODIN_KEY){checkKey();return;}setBtn('regen-topics-btn',true,'⟳ Generate Briefing');setLoad('topics-loading',true);document.getElementById('topics-container').innerHTML='';document.getElementById('contrarian-block').style.display='none';var P='Generate today\'s 5 AI learning topics for Brad Guo, Singapore AI company founder. Mix across the 16-module curriculum. Return ONLY valid JSON:\n{"topics":[{"title":"...","module":"M0X: ModuleName","summary":"3 clear sentences","cocktail":"One punchy dinner-party sentence no jargon","challenge":"One Socratic question","bloom":"Remember|Understand|Apply|Analyse|Evaluate|Create","tag":"new|review"}],"contrarian":"2-3 bold sentences challenging mainstream AI narrative — specific defensible memorable"}';try{var d=await odinCall(P,true);renderTopics(d.topics||[]);if(d.contrarian){document.getElementById('contrarian-text').innerHTML=d.contrarian.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');document.getElementById('contrarian-block').style.display='block';}markActivity();awardXP(10,'Daily briefing loaded');showToast("Today's briefing ready — 5 topics loaded.");}catch(e){document.getElementById('topics-container').innerHTML='<div style="padding:18px;font-size:12px;color:var(--red);font-family:\'DM Mono\',monospace">Error: '+e.message+'</div>';}setLoad('topics-loading',false);setBtn('regen-topics-btn',false,'⟳ Generate Briefing');}
+
+function renderTopics(topics){var c=document.getElementById('topics-container');c.innerHTML='';topics.forEach(function(t,i){var tagClass=t.tag==='review'?'b-review':'b-new';var tagLabel=t.tag==='review'?'Review':'New';var div=document.createElement('div');div.className='topic-row';div.innerHTML='<div class="tnum">'+String(i+1).padStart(2,'0')+'</div><div class="t-body"><div class="t-title">'+t.title+'</div><div class="t-mod">'+t.module+'</div><div class="t-cocktail">"'+t.cocktail+'"</div><div class="t-bloom">Bloom\'s: '+t.bloom+'</div></div><div class="t-badge '+tagClass+'">'+tagLabel+'</div>';div.addEventListener('click',function(){if(div.classList.contains('done'))return;div.classList.add('done');div.querySelector('.tnum').textContent='✓';div.querySelector('.t-badge').className='t-badge b-done';div.querySelector('.t-badge').textContent='Done';var s=loadState();s.topicsExplored++;s.bloomCounts[t.bloom]=(s.bloomCounts[t.bloom]||0)+1;addToSRT(t.title,t.module,s);saveState(s);awardXP(25,'Topic explored: '+t.title);show('chat');quickAsk('Teach me this topic fully: "'+t.title+'" ('+t.module+'). Dual-audience — developer version AND layman version. Real example. Socratic challenge: '+t.challenge+'. End with my superpower.');});c.appendChild(div);});}
+
+async function generateNews(){if(!ODIN_KEY){checkKey();return;}setBtn('news-refresh-btn',true,'⟳ Refresh Briefing');setLoad('news-loading',true);document.getElementById('news-container').innerHTML='';var P='Generate today\'s AI intelligence briefing: 4 significant AI developments 2025-2026. Cover: frontier model release, agentic/infrastructure development, regulatory development, business/commercial AI. For each: ODIN\'s sharp non-obvious strategic analysis — second-order effects, what mainstream misses. Singapore implications where relevant. Return ONLY valid JSON:\n{"news":[{"headline":"...","what":"2 factual sentences","analysis":"2-3 sentences genuine strategic insight not a summary","source":"Publication name","impact":"High|Medium|Low"}]}';try{var d=await odinCall(P,true);renderNews(d.news||[]);markActivity();awardXP(15,'AI intelligence briefing read');}catch(e){document.getElementById('news-container').innerHTML='<div style="padding:18px;font-size:12px;color:var(--red);font-family:\'DM Mono\',monospace">Error: '+e.message+'</div>';}setLoad('news-loading',false);setBtn('news-refresh-btn',false,'⟳ Refresh Briefing');}
+
+function renderNews(items){var c=document.getElementById('news-container');c.innerHTML='';items.forEach(function(n){var cc=n.impact==='High'?'nc-high':n.impact==='Medium'?'nc-med':'nc-low';var pc=n.impact==='High'?'ip-high':n.impact==='Medium'?'ip-med':'ip-low';var div=document.createElement('div');div.className='news-card '+cc;div.innerHTML='<div class="n-head">'+n.headline+'</div><div class="n-what">'+n.what+'</div><div class="n-analysis"><div class="n-alabel">ODIN\'s Read</div><div class="n-atext">'+n.analysis.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')+'</div></div><div class="n-footer"><span class="impact-pip '+pc+'">'+n.impact+' Impact</span><span class="n-src">'+n.source+'</span><button class="n-dive">Deep dive ↗</button></div>';div.querySelector('.n-dive').addEventListener('click',function(e){e.stopPropagation();show('chat');quickAsk('Deep dive: "'+n.headline+'". Technical meaning, strategic implications, second and third-order effects. What should a Singapore AI company do about this right now?');});c.appendChild(div);});}
+
+async function sendMsg(){if(!ODIN_KEY){checkKey();return;}var inp=document.getElementById('chat-inp');var msg=inp&&inp.value.trim();if(!msg)return;inp.value='';inp.style.height='auto';appendMsg(msg,'user');chatHistory.push({role:'user',content:msg});document.getElementById('send-btn').disabled=true;showTyping(true);try{var reply=await odinChatCall(chatHistory);chatHistory.push({role:'assistant',content:reply});showTyping(false);appendMsg(reply,'ai');sessionChatTurns++;document.getElementById('chat-turn-count').textContent=sessionChatTurns;if(sessionChatTurns%3===0){markActivity();awardXP(15,'ODIN chat session');}}catch(e){showTyping(false);appendMsg('Connection issue: '+e.message,'ai');}document.getElementById('send-btn').disabled=false;}
+
+function quickAsk(text){show('chat');var inp=document.getElementById('chat-inp');if(inp){inp.value=text;setTimeout(sendMsg,80);}}
+
+function appendMsg(text,role){var tr=document.getElementById('typing-row-live');if(tr)tr.remove();var msgs=document.getElementById('chat-msgs');var div=document.createElement('div');div.className='msg '+role;var av=document.createElement('div');av.className='m-av';av.textContent=role==='ai'?'O':'B';var bub=document.createElement('div');bub.className='m-bub';bub.innerHTML=fmt(text);div.appendChild(av);div.appendChild(bub);msgs.appendChild(div);scrollChat();}
+
+function showTyping(on){var ex=document.getElementById('typing-row-live');if(on&&!ex){var msgs=document.getElementById('chat-msgs');var div=document.createElement('div');div.className='msg ai';div.id='typing-row-live';div.innerHTML='<div class="m-av">O</div><div class="m-bub"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';msgs.appendChild(div);scrollChat();}else if(!on&&ex){ex.remove();}}
+
+function scrollChat(){var m=document.getElementById('chat-msgs');if(m)setTimeout(function(){m.scrollTop=m.scrollHeight;},50);}
+
+function renderCurriculum(){var container=document.getElementById('curriculum-container');container.innerHTML='';var s=loadState();TIERS.forEach(function(tier){var tierDiv=document.createElement('div');var hdr=document.createElement('div');hdr.className='tier-hdr';hdr.innerHTML=tier.label+' <span class="t-badge-tier '+tier.cls+'">T'+tier.n+'</span>';var grid=document.createElement('div');grid.className='mod-grid';grid.style.gridTemplateColumns='repeat('+tier.cols+',1fr)';tier.mods.forEach(function(mid){var m=MODULES.find(function(x){return x.id===mid;});if(!m)return;var chipsExplored=s.moduleChipsExplored[mid]||0;var totalChips=m.topics.split(',').length;var pct=totalChips>0?Math.round((chipsExplored/totalChips)*100):0;var card=document.createElement('div');card.className='mod-card';card.innerHTML='<div class="mod-n">'+m.id+' · '+pct+'%</div><div class="mod-t">'+m.title+'</div><div class="mod-s">'+m.sub+'</div><div class="mod-bar"><div class="mod-fill" style="width:'+pct+'%"></div></div>';card.addEventListener('click',function(){openMod(m);markActivity();awardXP(5,'Module opened: '+m.id);});grid.appendChild(card);});tierDiv.appendChild(hdr);tierDiv.appendChild(grid);container.appendChild(tierDiv);});}
+
+function openMod(m){document.getElementById('mp-title').textContent=m.id+': '+m.title;document.getElementById('mp-desc').textContent=m.desc;var chipsEl=document.getElementById('mp-chips');chipsEl.innerHTML='';m.topics.split(',').forEach(function(t){var chip=document.createElement('div');chip.className='chip';chip.textContent=t.trim();chip.addEventListener('click',function(){chip.style.borderColor='rgba(189,33,180,0.5)';chip.style.color='var(--mag-light)';var s=loadState();s.moduleChipsExplored[m.id]=(s.moduleChipsExplored[m.id]||0)+1;saveState(s);awardXP(10,'Chip explored: '+t.trim());renderCurriculum();show('chat');quickAsk('Deep dive on "'+t.trim()+'" from Module '+m.id+': '+m.title+'. Technical explanation AND layman version. Real-world example. Your contrarian take if there is one. My superpower after understanding this.');});chipsEl.appendChild(chip);});document.getElementById('mp-sp').textContent=m.sp;document.getElementById('mod-start-btn').onclick=function(){show('chat');quickAsk('Start a full structured lesson on Module '+m.id+': '+m.title+'. Use Bloom\'s taxonomy — begin at Remember/Understand, build to Apply and Analyse. Dual-audience explanations throughout. End with my superpower after this module.');awardXP(20,'Full module lesson started: '+m.id);};var panel=document.getElementById('mod-panel');panel.classList.add('open');panel.scrollIntoView({behavior:'smooth',block:'nearest'});}
+
+async function loadQuiz(){if(!ODIN_KEY){checkKey();return;}document.getElementById('quiz-opts').innerHTML='';document.getElementById('quiz-exp').classList.remove('show');document.getElementById('quiz-next-btn').classList.remove('show');var qt=document.getElementById('quiz-q-text');if(qt)qt.textContent='Generating question...';document.getElementById('quiz-q-meta').textContent='ODIN is thinking...';var P='Generate a single multiple-choice quiz question for Brad on AI concepts. Vary difficulty — sometimes foundational sometimes advanced. Genuinely thought-provoking with plausible wrong answers. Return ONLY valid JSON:\n{"question":"...","module":"M0X: name","bloom":"Remember|Understand|Apply|Analyse","options":["A. ...","B. ...","C. ...","D. ..."],"correct":0,"explanation":"2-3 sentences: why correct AND what is wrong with each distractor — ODIN style not Wikipedia"}';try{var q=await odinCall(P,true);renderQuiz(q);markActivity();}catch(e){if(qt)qt.textContent='Error: '+e.message;}}
+
+function renderQuiz(q){document.getElementById('quiz-q-meta').textContent=(q.module||'AI Concepts')+' · '+(q.bloom||'Comprehension')+' Level';var qt=document.getElementById('quiz-q-text');if(qt)qt.textContent=q.question;var opts=document.getElementById('quiz-opts');opts.innerHTML='';q.options.forEach(function(opt,i){var btn=document.createElement('button');btn.className='qopt';btn.textContent=opt;btn.addEventListener('click',function(){document.querySelectorAll('.qopt').forEach(function(b){b.onclick=null;});var s=loadState();s.questionsAnswered++;if(i===q.correct){btn.classList.add('correct');s.correctAnswers++;quizSessionCorrect++;awardXP(20,'Correct quiz answer');}else{btn.classList.add('wrong');var allOpts=document.querySelectorAll('.qopt');if(allOpts[q.correct])allOpts[q.correct].classList.add('correct');quizSessionWrong++;}var expEl=document.getElementById('quiz-exp');var expText=document.getElementById('quiz-exp-text');if(expText)expText.innerHTML=q.explanation.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');if(expEl)expEl.classList.add('show');var nxt=document.getElementById('quiz-next-btn');if(nxt)nxt.classList.add('show');document.getElementById('qs-correct').textContent=quizSessionCorrect;document.getElementById('qs-wrong').textContent=quizSessionWrong;var total=quizSessionCorrect+quizSessionWrong;document.getElementById('qs-acc').textContent=total>0?Math.round((quizSessionCorrect/total)*100)+'%':'—';saveState(s);updateStats();var pips=document.querySelectorAll('.qp');pips.forEach(function(p,pi){p.className='qp';if(pi<(s.questionsAnswered%5))p.classList.add('done');else if(pi===(s.questionsAnswered%5))p.classList.add('now');});});opts.appendChild(btn);});}
+
+function socraticChallenge(){show('chat');quickAsk('Give me a Socratic challenge on a key AI concept. Ask me a probing question, then guide me to the answer through follow-up questions rather than just telling me. Pick something that reveals a common misconception. Make it genuinely challenging.');awardXP(10,'Socratic challenge started');}
+
+function renderBloom(bloomCounts,totalTopics){var levels=['Remember','Understand','Apply','Analyse','Evaluate','Create'];var maxPossible=Math.max(totalTopics,1);var el=document.getElementById('bloom-list');if(!el)return;el.innerHTML='';levels.forEach(function(lvl){var count=bloomCounts[lvl]||0;var pct=Math.min(100,Math.round((count/maxPossible)*100));var row=document.createElement('div');row.className='b-row';row.innerHTML='<div class="b-lbl">'+lvl+'</div><div class="b-track"><div class="b-fill" style="width:'+pct+'%"></div></div><div class="b-pct">'+pct+'%</div>';el.appendChild(row);});}
+
+function renderModProgress(moduleChipsExplored){var el=document.getElementById('mod-prog-list');if(!el)return;el.innerHTML='';MODULES.forEach(function(m){var explored=moduleChipsExplored[m.id]||0;var total=m.topics.split(',').length;var pct=total>0?Math.round((explored/total)*100):0;var row=document.createElement('div');row.className='mp-row';row.innerHTML='<div class="mp-n">'+m.id+'</div><div class="mp-t">'+m.title+'</div><div class="mp-bw"><div class="mp-b"><div class="mp-bf" style="width:'+pct+'%"></div></div></div><div class="mp-p">'+(pct>0?pct+'%':'—')+'</div>';el.appendChild(row);});}
+
+function addToSRT(topicTitle,moduleName,s){var now=new Date();var intervals=[1,3,7,14,21,60];s.srtQueue=s.srtQueue||[];var existing=s.srtQueue.findIndex(function(x){return x.topic===topicTitle;});if(existing>-1){var e=s.srtQueue[existing];var nextInt=intervals[Math.min(e.interval+1,intervals.length-1)];var nextDate=new Date(now.getTime()+(nextInt*86400000));s.srtQueue[existing]=Object.assign({},e,{interval:e.interval+1,nextReview:nextDate.toISOString()});}else{var nextDate2=new Date(now.getTime()+(86400000));s.srtQueue.push({topic:topicTitle,module:moduleName,interval:0,nextReview:nextDate2.toISOString()});}s.srtQueue.sort(function(a,b){return new Date(a.nextReview)-new Date(b.nextReview);});}
+
+function renderSRT(srtQueue){var el=document.getElementById('srt-rows');var quizEl=document.getElementById('srt-quiz-list');if(!srtQueue||srtQueue.length===0){if(el)el.innerHTML='<div style="font-size:12px;color:var(--text3);font-family:\'DM Mono\',monospace;letter-spacing:.06em;padding:10px 0">No reviews scheduled yet. Start exploring topics.</div>';if(quizEl)quizEl.innerHTML='No reviews yet — start learning topics.';return;}if(el)el.innerHTML='';var now=new Date();var quizHTML='';srtQueue.slice(0,8).forEach(function(item,i){var reviewDate=new Date(item.nextReview);var diffDays=Math.round((reviewDate-now)/86400000);var label=diffDays<=0?'Today':diffDays===1?'Tomorrow':'+'+diffDays+' days';if(el){var row=document.createElement('div');row.className='srt-r';row.innerHTML='<div class="srt-day">'+label+'</div><div class="srt-t">'+item.topic+' · '+item.module+'</div>';el.appendChild(row);}if(i<4)quizHTML+='<span>'+label+'</span> · '+item.topic+'<br>';});if(quizEl)quizEl.innerHTML=quizHTML||'No reviews yet.';}
+
+document.addEventListener('DOMContentLoaded',function(){
+  document.getElementById('tab-today').addEventListener('click',function(){show('today');});
+  document.getElementById('tab-news').addEventListener('click',function(){show('news');});
+  document.getElementById('tab-chat').addEventListener('click',function(){show('chat');markActivity();});
+  document.getElementById('tab-curriculum').addEventListener('click',function(){show('curriculum');renderCurriculum();markActivity();});
+  document.getElementById('tab-quiz').addEventListener('click',function(){show('quiz');});
+  document.getElementById('tab-progress').addEventListener('click',function(){show('progress');updateStats();});
+  document.getElementById('regen-topics-btn').addEventListener('click',generateTopics);
+  document.getElementById('news-refresh-btn').addEventListener('click',generateNews);
+  document.getElementById('send-btn').addEventListener('click',sendMsg);
+  document.getElementById('quiz-next-btn').addEventListener('click',loadQuiz);
+  document.getElementById('new-question-btn').addEventListener('click',loadQuiz);
+  document.getElementById('socratic-btn').addEventListener('click',socraticChallenge);
+  document.getElementById('mp-close').addEventListener('click',function(){document.getElementById('mod-panel').classList.remove('open');});
+  var ci=document.getElementById('chat-inp');
+  if(ci){ci.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});ci.addEventListener('input',function(){ci.style.height='auto';ci.style.height=Math.min(ci.scrollHeight,90)+'px';});}
+  document.querySelectorAll('.qchip').forEach(function(chip){chip.addEventListener('click',function(){if(!ODIN_KEY){checkKey();return;}var txt=chip.textContent.trim().replace(/^[◆◎⚙◉◇]\s*/,'');var map={'Full lesson — all levels':'Give me a full structured lesson. Use Blooms taxonomy, dual-audience explanations, real examples, Socratic challenge, end with my superpower.','Quick explainer only':'Give me a 3-sentence crystal-clear explainer. No jargon.','Technical depth':'Full technical depth — engineering level. Assume I can handle it.','Layman translation':'Best analogy + simplest possible explanation for a non-technical person.','Quiz me on this':'Create 3 quiz questions on what we discussed: recall, application, analysis. Give questions first then evaluate my answers.'};quickAsk(map[txt]||txt);});});
+  updateStats();
+  markActivity();
+  renderCurriculum();
+  if(!ODIN_KEY)setTimeout(showKeyGate,500);
+});
+</script>
+</body>
+</html>
